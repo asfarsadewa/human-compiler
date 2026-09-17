@@ -17,11 +17,11 @@ const MIN_COLUMNS = 36;
 const MAX_COLUMNS = 120;
 
 /** Columns of monospace text that fit in the listing, measured from a probe glyph. */
-function useColumns(ref: React.RefObject<HTMLDivElement | null>): number {
+function useColumns(ref: React.RefObject<HTMLDivElement | null>, active: boolean): number {
   const [columns, setColumns] = useState(80);
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || !active) return;
     const probe = document.createElement("span");
     probe.textContent = "0".repeat(20);
     probe.style.cssText = "position:absolute;visibility:hidden;white-space:pre;font:inherit;";
@@ -39,7 +39,7 @@ function useColumns(ref: React.RefObject<HTMLDivElement | null>): number {
       ro.disconnect();
       probe.remove();
     };
-  }, [ref]);
+  }, [ref, active]);
   return columns;
 }
 
@@ -62,7 +62,10 @@ function Diag({ d, lines, columns, onJump }: { d: Diagnostic; lines: string[]; c
           {"\n"}
           {block.source}
           {"\n"}
-          <span className="carets">{block.carets}</span>
+          <span className="carets">
+            {block.carets}
+            {block.labelLine ? `\n${block.labelLine}` : ""}
+          </span>
           {d.notes.length || d.help.length ? `\n${block.gutter}` : ""}
           {d.notes.map((n, i) => (
             <span key={`n${i}`}>
@@ -100,7 +103,7 @@ function Diag({ d, lines, columns, onJump }: { d: Diagnostic; lines: string[]; c
 export function Output({ status, report, lines, error, stale, onJump, onLoadExample }: Props) {
   const [copied, setCopied] = useState(false);
   const listingRef = useRef<HTMLDivElement>(null);
-  const columns = useColumns(listingRef);
+  const columns = useColumns(listingRef, status === "done" && report !== null);
 
   const copy = async () => {
     if (!report) return;

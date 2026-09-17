@@ -71,6 +71,16 @@ describe("windowLine", () => {
     expect(head.col).toBe(1);
   });
 
+  it("moves a label to its own line when it would not fit", () => {
+    const d = report.diagnostics.find((x) => x.message === '"Per my last email" detected');
+    const lines = renderDiagnostic(d as NonNullable<typeof d>, lexed.lines, "input.txt", 30).split("\n");
+    expect(lines[4]).toBe("  | ^^^^^^^^^^^^^^^^^");
+    expect(lines[5]).toBe('  | consider: "as I wrote earlier"');
+    expect(lines[6]).toBe("  |");
+    const wide = renderDiagnostic(d as NonNullable<typeof d>, lexed.lines, "input.txt", 120).split("\n");
+    expect(wide[4]).toBe('  | ^^^^^^^^^^^^^^^^^ consider: "as I wrote earlier"');
+  });
+
   it("is used by renderDiagnostic when a width is given", () => {
     const d = report.diagnostics.find((x) => x.message === '"circle back" detected');
     const text = renderDiagnostic(d as NonNullable<typeof d>, lexed.lines, "input.txt", 60);

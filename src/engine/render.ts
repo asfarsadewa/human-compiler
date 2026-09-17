@@ -45,22 +45,31 @@ export interface SpanBlock {
   gutter: string;
   source: string;
   carets: string;
+  /** The label on its own line, when it would not fit after the carets. */
+  labelLine?: string;
 }
 
-/** The four lines under a diagnostic header: location, gutter, source, carets. */
+/** The lines under a diagnostic header: location, gutter, source, carets, and sometimes a label line. */
 export function spanBlock(d: Diagnostic, lines: readonly string[], filename = FILENAME, maxWidth = 0): SpanBlock | null {
   if (!d.span) return null;
   const width = String(d.span.line).length;
   const pad = " ".repeat(width);
   const raw = lines[d.span.line - 1] ?? "";
   const { text, col } = windowLine(raw, d.span.col, d.span.length, maxWidth);
-  const carets = " ".repeat(Math.max(0, col - 1)) + "^".repeat(Math.max(1, Math.min(d.span.length, text.length - col + 1)));
-  return {
+  const indent = " ".repeat(Math.max(0, col - 1));
+  const run = indent + "^".repeat(Math.max(1, Math.min(d.span.length, text.length - col + 1)));
+  const block: SpanBlock = {
     arrow: `${pad} --> ${filename}:${d.span.line}:${d.span.col}`,
     gutter: `${pad} |`,
     source: `${String(d.span.line).padStart(width)} | ${text}`,
-    carets: `${pad} | ${carets}${d.label ? ` ${d.label}` : ""}`,
+    carets: `${pad} | ${run}${d.label ? ` ${d.label}` : ""}`,
   };
+  if (d.label && maxWidth > 0 && run.length + 1 + d.label.length > maxWidth) {
+    block.carets = `${pad} | ${run}`;
+    const fits = indent.length + d.label.length <= maxWidth;
+    block.labelLine = `${pad} | ${fits ? indent : ""}${d.label}`;
+  }
+  return block;
 }
 
 export function renderDiagnostic(d: Diagnostic, lines: readonly string[], filename = FILENAME, maxWidth = 0): string {
@@ -69,6 +78,7 @@ export function renderDiagnostic(d: Diagnostic, lines: readonly string[], filena
   if (block && d.span) {
     const pad = " ".repeat(String(d.span.line).length);
     out.push(block.arrow, block.gutter, block.source, block.carets);
+    if (block.labelLine) out.push(block.labelLine);
     if (d.notes.length || d.help.length) out.push(block.gutter);
     for (const n of d.notes) out.push(`${pad} = note: ${n}`);
     for (const h of d.help) out.push(`${pad} = help: ${h}`);

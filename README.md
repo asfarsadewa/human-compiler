@@ -82,6 +82,8 @@ npm run typecheck
 
 `.dev.vars` uses Cloudflare's always-pass Turnstile test keys, so the widget verifies locally without a real site key.
 
+`npm run og` regenerates the link-preview image at `public/og.png` from an SVG in `scripts/og.mjs`; it downloads the two fonts into `node_modules/.cache` on first run.
+
 ## Deploy
 
 ```bash

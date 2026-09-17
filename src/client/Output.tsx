@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FILENAME, headerLines, optimizedLine, renderText, spanBlock, summaryLine, type Diagnostic, type Report } from "../engine";
 
 export type Status = "idle" | "compiling" | "done" | "error";
@@ -13,10 +13,38 @@ interface Props {
   onLoadExample(): void;
 }
 
-const SOURCE_WIDTH = 80;
+const MIN_COLUMNS = 36;
+const MAX_COLUMNS = 120;
 
-function Diag({ d, lines, onJump }: { d: Diagnostic; lines: string[]; onJump(d: Diagnostic): void }) {
-  const block = spanBlock(d, lines, FILENAME, SOURCE_WIDTH);
+/** Columns of monospace text that fit in the listing, measured from a probe glyph. */
+function useColumns(ref: React.RefObject<HTMLDivElement | null>): number {
+  const [columns, setColumns] = useState(80);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const probe = document.createElement("span");
+    probe.textContent = "0".repeat(20);
+    probe.style.cssText = "position:absolute;visibility:hidden;white-space:pre;font:inherit;";
+    el.appendChild(probe);
+    const measure = () => {
+      const glyph = probe.getBoundingClientRect().width / 20 || 8;
+      const inner = el.clientWidth - 32;
+      // The gutter (" 3 | ") and a little slack come off the top.
+      setColumns(Math.max(MIN_COLUMNS, Math.min(MAX_COLUMNS, Math.floor(inner / glyph) - 6)));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      probe.remove();
+    };
+  }, [ref]);
+  return columns;
+}
+
+function Diag({ d, lines, columns, onJump }: { d: Diagnostic; lines: string[]; columns: number; onJump(d: Diagnostic): void }) {
+  const block = spanBlock(d, lines, FILENAME, columns);
   const pad = d.span ? " ".repeat(String(d.span.line).length) : " ";
   return (
     <article className={`diag diag-${d.level}`}>
@@ -71,6 +99,8 @@ function Diag({ d, lines, onJump }: { d: Diagnostic; lines: string[]; onJump(d: 
 
 export function Output({ status, report, lines, error, stale, onJump, onLoadExample }: Props) {
   const [copied, setCopied] = useState(false);
+  const listingRef = useRef<HTMLDivElement>(null);
+  const columns = useColumns(listingRef);
 
   const copy = async () => {
     if (!report) return;
@@ -127,7 +157,7 @@ export function Output({ status, report, lines, error, stale, onJump, onLoadExam
   const opt = optimizedLine(report);
 
   return (
-    <div className={`listing${stale ? " stale" : ""}`}>
+    <div className={`listing${stale ? " stale" : ""}`} ref={listingRef}>
       <div className="listing-tools">
         {stale && <span className="stale-note">input changed since this compile</span>}
         <button type="button" className="tool" onClick={copy}>
@@ -191,7 +221,7 @@ export function Output({ status, report, lines, error, stale, onJump, onLoadExam
 
       <div className="diags">
         {report.diagnostics.map((d, i) => (
-          <Diag key={`${d.code}-${i}`} d={d} lines={lines} onJump={onJump} />
+          <Diag key={`${d.code}-${i}`} d={d} lines={lines} columns={columns} onJump={onJump} />
         ))}
       </div>
 

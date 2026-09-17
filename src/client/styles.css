@@ -115,11 +115,11 @@ button {
 
 .top {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 16px 24px;
+  gap: 12px 24px;
   flex-wrap: wrap;
-  padding: 18px 0 12px;
+  padding: 16px 0 12px;
 }
 
 .wordmark {
@@ -141,19 +141,28 @@ button {
 
 .cli {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.opt {
+/* Every control in the row shares one box: 30px tall, bordered, centred. */
+.opt,
+.flag-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  box-sizing: border-box;
+  height: 30px;
+  margin: 0;
   border: 1px solid var(--rule);
   background: var(--sheet);
+  line-height: 1;
+  vertical-align: top;
+}
+
+.opt {
+  gap: 6px;
   padding: 0 0 0 10px;
-  height: 30px;
 }
 
 .opt .flag {
@@ -163,9 +172,11 @@ button {
 .opt select {
   appearance: none;
   border: 0;
+  margin: 0;
   background: transparent;
   padding: 0 26px 0 2px;
   height: 28px;
+  line-height: 28px;
   cursor: pointer;
   background-image: linear-gradient(45deg, transparent 50%, var(--ink-2) 50%), linear-gradient(135deg, var(--ink-2) 50%, transparent 50%);
   background-position:
@@ -176,10 +187,7 @@ button {
 }
 
 .flag-btn {
-  height: 30px;
   padding: 0 10px;
-  border: 1px solid var(--rule);
-  background: var(--sheet);
   color: var(--ink-2);
 }
 

@@ -1,4 +1,4 @@
-import { CHOICES, NOULS, SCORES, getMode, type Measurements, type ModeId } from "../src/engine";
+import { CHOICES, NOULS, SCORES, extrasFor, type Measurements, type ModeRequest } from "../src/engine";
 
 export interface Overrides {
   nouls?: Record<string, number>;
@@ -28,11 +28,11 @@ function spread(options: readonly string[], choice: string, p: number): Record<s
 }
 
 /** Quiet measurements: every noul low, every score benign. Override what a test needs. */
-export function measurements(over: Overrides = {}, mode: ModeId = "default"): Measurements {
+export function measurements(over: Overrides = {}, mode: ModeRequest = "default"): Measurements {
   const m: Measurements = { nouls: {}, choices: {}, scores: {}, units: over.units ?? [] };
   for (const n of NOULS) m.nouls[n.id] = n.presence ? 0.9 : 0.1;
   m.nouls.contains_request = 0.1;
-  for (const x of getMode(mode).extra) m.nouls[x.id] = 0.1;
+  for (const x of extrasFor(mode)) m.nouls[x.id] = 0.1;
   Object.assign(m.nouls, over.nouls ?? {});
 
   for (const [id, spec] of Object.entries(SCORES)) {

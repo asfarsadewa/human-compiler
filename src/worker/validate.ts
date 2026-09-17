@@ -1,6 +1,6 @@
 // Request validation for POST /api/compile. Pure, so it is unit tested.
 
-import { DEFAULT_FLAGS, MODE_IDS, normalize, MAX_INPUT_CHARS, type Flags, type ModeId } from "../engine";
+import { DEFAULT_FLAGS, MODE_REQUESTS, normalize, MAX_INPUT_CHARS, type Flags, type ModeRequest } from "../engine";
 
 export const MAX_TOKEN_CHARS = 2048;
 export const MAX_BODY_BYTES = 64 * 1024;
@@ -17,7 +17,7 @@ export class ValidationError extends Error {
 
 export interface CompileRequest {
   text: string;
-  mode: ModeId;
+  mode: ModeRequest;
   flags: Flags;
   token: string;
 }
@@ -39,12 +39,12 @@ export function parseFlags(v: unknown): Flags {
   return out;
 }
 
-export function parseMode(v: unknown): ModeId {
-  if (v === undefined) return "default";
-  if (typeof v !== "string" || !(MODE_IDS as readonly string[]).includes(v)) {
-    throw new ValidationError("mode", `mode must be one of ${MODE_IDS.join(", ")}`);
+export function parseMode(v: unknown): ModeRequest {
+  if (v === undefined) return "auto";
+  if (typeof v !== "string" || !(MODE_REQUESTS as readonly string[]).includes(v)) {
+    throw new ValidationError("mode", `mode must be one of ${MODE_REQUESTS.join(", ")}`);
   }
-  return v as ModeId;
+  return v as ModeRequest;
 }
 
 export function parseCompileRequest(body: unknown): CompileRequest {

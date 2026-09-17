@@ -3,14 +3,17 @@
 // Rules read measurements and lexical facts; they never call the model.
 
 import { phraseCounts } from "./lexer";
-import { MODES, REGISTER_TO_MODE, type LevelOrOff, type Mode, type ModeQuestion, type RegisterId } from "./modes";
+import { AUTO_MIN_P, MODES, REGISTER_TO_MODE, type LevelOrOff, type Mode, type ModeQuestion, type RegisterId } from "./modes";
 import { SCORES } from "./questions";
-import type { Category, Flags, Level, Lexed, Measurements, Span } from "./types";
+import type { Category, Flags, Level, Lexed, Measurements, ModeRequest, ModeResolution, Span } from "./types";
 
 export interface RuleContext {
   lexed: Lexed;
   m: Measurements;
+  /** The profile in force (already resolved for auto). */
   mode: Mode;
+  request: ModeRequest;
+  resolution: ModeResolution | null;
   flags: Flags;
   /** Threshold for rules that fire when a value is at or above it. -Wall lowers it. */
   th(id: string, def: number): number;
@@ -276,6 +279,7 @@ const SEMANTIC_RULES: Rule[] = [
     level: "note",
     summary: "The input's dialect does not match the mode, or suggests one.",
     run(ctx) {
+      if (ctx.request === "auto") return [];
       const c = ctx.m.choices.register;
       if (!c) return [];
       const reg = c.choice as RegisterId;
@@ -300,6 +304,20 @@ const SEMANTIC_RULES: Rule[] = [
       const p = c.probabilities[c.choice] ?? 0;
       const t = ctx.th("subtext", 0.5);
       return p >= t ? [{ message: `emotional subtext: ${c.choice}`, notes: [`subtext.${c.choice} = ${f2(p)}, threshold ${f2(t)}`] }] : [];
+    },
+  },
+  {
+    code: "HC034",
+    name: "auto_mode",
+    level: "note",
+    summary: "Which profile --mode auto picked from the detected dialect, and why.",
+    run(ctx) {
+      if (ctx.request !== "auto" || !ctx.resolution) return [];
+      const r = ctx.resolution;
+      const note = `dialect.${r.register} = ${f2(r.p)}, threshold ${f2(AUTO_MIN_P)}`;
+      return r.used
+        ? [{ message: `--mode auto resolved to ${ctx.mode.id}`, notes: [note] }]
+        : [{ message: "--mode auto found no dominant dialect; compiled with --mode default", notes: [note] }];
     },
   },
 ];
@@ -595,12 +613,21 @@ export function resolveLevel(rule: Rule, fired: Fired, mode: Mode, flags: Flags)
   return base;
 }
 
-export function makeContext(lexed: Lexed, m: Measurements, mode: Mode, flags: Flags): RuleContext {
+export function makeContext(
+  lexed: Lexed,
+  m: Measurements,
+  mode: Mode,
+  flags: Flags,
+  request: ModeRequest = mode.id,
+  resolution: ModeResolution | null = null,
+): RuleContext {
   const delta = flags.wall ? WALL_DELTA : 0;
   return {
     lexed,
     m,
     mode,
+    request,
+    resolution,
     flags,
     th(id, def) {
       const base = mode.thresholds[id] ?? def;

@@ -1,7 +1,7 @@
 // Worker entry. Serves /api/*; everything else is a static asset.
 
 import { APIConnectionError, APIError, TypeSafeClient, type Questions, type SystemOneResult } from "@typesafe-ai/sdk";
-import { MAX_INPUT_CHARS, UNIT_PREFIX, VERSION, buildQuestions, compile, getMode, lex, type Measurements } from "../engine";
+import { MAX_INPUT_CHARS, UNIT_PREFIX, VERSION, buildQuestions, compile, lex, type Measurements } from "../engine";
 import { parseHostnames, verifyTurnstile } from "./turnstile";
 import { MAX_BODY_BYTES, ValidationError, parseCompileRequest } from "./validate";
 
@@ -90,10 +90,9 @@ async function handleCompile(request: Request, env: Env): Promise<Response> {
   }
   if (turnstile.testing) log("warn", "turnstile_testing_key", { hostname: turnstile.hostname });
 
-  const mode = getMode(req.mode);
   const t0 = performance.now();
   const lexed = lex(req.text);
-  const built = buildQuestions(lexed, mode);
+  const built = buildQuestions(lexed, req.mode);
   const lexMs = performance.now() - t0;
 
   const client = new TypeSafeClient({
@@ -128,7 +127,7 @@ async function handleCompile(request: Request, env: Env): Promise<Response> {
   const report = compile({
     lexed,
     measurements,
-    mode,
+    request: req.mode,
     flags: req.flags,
     model: result.model,
     questionCount: built.count,
@@ -138,7 +137,8 @@ async function handleCompile(request: Request, env: Env): Promise<Response> {
   report.timings.emit_ms = performance.now() - t2;
 
   log("info", "compiled", {
-    mode: mode.id,
+    requested: req.mode,
+    mode: report.mode,
     chars: lexed.chars,
     questions: built.count,
     tokens: result.usage.input_tokens + result.usage.output_tokens,

@@ -1,16 +1,30 @@
 // Turns measurements plus lexical facts into a report. Deterministic: the same
 // inputs always produce the same report.
 
-import type { Mode } from "./modes";
+import { resolveMode, type Mode } from "./modes";
 import { CHOICES, NOULS, SCORES, noulSpecsFor } from "./questions";
 import { DEAD_UNIT_THRESHOLD, deadUnits, makeContext, resolveLevel, rulesFor, unreachableParagraphs } from "./rules";
-import { LEVEL_ORDER, type Diagnostic, type DistributionRow, type Flags, type Lexed, type MeasurementRow, type Measurements, type Optimized, type Report, type ScoreRow } from "./types";
+import {
+  LEVEL_ORDER,
+  type Diagnostic,
+  type DistributionRow,
+  type Flags,
+  type Lexed,
+  type MeasurementRow,
+  type Measurements,
+  type ModeRequest,
+  type ModeResolution,
+  type Optimized,
+  type Report,
+  type ScoreRow,
+} from "./types";
 import { VERSION } from "./version";
 
 export interface CompileInput {
   lexed: Lexed;
   measurements: Measurements;
-  mode: Mode;
+  /** A profile, or auto. */
+  request: ModeRequest;
   flags: Flags;
   model: string;
   questionCount: number;
@@ -37,8 +51,15 @@ export function sortDiagnostics(list: Diagnostic[]): Diagnostic[] {
   return [...global, ...local];
 }
 
-export function runRules(lexed: Lexed, measurements: Measurements, mode: Mode, flags: Flags): Diagnostic[] {
-  const ctx = makeContext(lexed, measurements, mode, flags);
+export function runRules(
+  lexed: Lexed,
+  measurements: Measurements,
+  mode: Mode,
+  flags: Flags,
+  request: ModeRequest = mode.id,
+  resolution: ModeResolution | null = null,
+): Diagnostic[] {
+  const ctx = makeContext(lexed, measurements, mode, flags, request, resolution);
   const out: Diagnostic[] = [];
   for (const rule of rulesFor(mode)) {
     for (const fired of rule.run(ctx)) {
@@ -137,8 +158,9 @@ export function optimize(lexed: Lexed, measurements: Measurements, flags: Flags)
 }
 
 export function compile(input: CompileInput): Report {
-  const { lexed, measurements, mode, flags } = input;
-  const diagnostics = runRules(lexed, measurements, mode, flags);
+  const { lexed, measurements, flags } = input;
+  const { mode, resolution } = resolveMode(input.request, measurements);
+  const diagnostics = runRules(lexed, measurements, mode, flags, input.request, resolution);
   const counts = {
     errors: diagnostics.filter((d) => d.level === "error").length,
     warnings: diagnostics.filter((d) => d.level === "warning").length,
@@ -148,6 +170,8 @@ export function compile(input: CompileInput): Report {
   return {
     version: VERSION,
     mode: mode.id,
+    requested: input.request,
+    resolution,
     flags: { ...flags },
     input: {
       lines: lexed.lines.length,

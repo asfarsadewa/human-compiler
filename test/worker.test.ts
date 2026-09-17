@@ -6,7 +6,7 @@ import { ValidationError, parseCompileRequest, parseFlags, parseMode } from "../
 describe("parseCompileRequest", () => {
   it("accepts a minimal valid body with defaults", () => {
     const r = parseCompileRequest({ text: "hello\r\n", token: "t" });
-    expect(r).toEqual({ text: "hello", mode: "default", flags: { wall: false, werror: false, o2: false }, token: "t" });
+    expect(r).toEqual({ text: "hello", mode: "auto", flags: { wall: false, werror: false, o2: false }, token: "t" });
   });
 
   it("enforces the character limit after normalisation", () => {
@@ -27,7 +27,9 @@ describe("parseCompileRequest", () => {
 
   it("parses modes and flags", () => {
     expect(parseMode("teenager")).toBe("teenager");
-    expect(parseMode(undefined)).toBe("default");
+    expect(parseMode("auto")).toBe("auto");
+    expect(parseMode("default")).toBe("default");
+    expect(parseMode(undefined)).toBe("auto");
     expect(parseFlags({ werror: true })).toEqual({ wall: false, werror: true, o2: false });
     expect(parseFlags(undefined)).toEqual({ wall: false, werror: false, o2: false });
   });

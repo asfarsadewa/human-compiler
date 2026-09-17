@@ -1,7 +1,7 @@
 // Compiler modes. A mode is a lint profile: which categories fire, at what
 // level, with which thresholds, plus a few mode-specific questions.
 
-import type { Category, Level, ModeId } from "./types";
+import type { Category, Level, Measurements, ModeId, ModeRequest, ModeResolution } from "./types";
 
 export type LevelOrOff = Level | "off";
 
@@ -349,4 +349,24 @@ export const MODES: Record<ModeId, Mode> = {
 
 export function getMode(id: ModeId): Mode {
   return MODES[id];
+}
+
+/** Minimum dialect probability for auto to commit to a profile. */
+export const AUTO_MIN_P = 0.5;
+
+/** The profile to run rules with. Auto reads the dialect answer; everything else is literal. */
+export function resolveMode(request: ModeRequest, measurements: Measurements): { mode: Mode; resolution: ModeResolution | null } {
+  if (request !== "auto") return { mode: MODES[request], resolution: null };
+  const c = measurements.choices.register;
+  if (!c) return { mode: MODES.default, resolution: { register: "unknown", p: 0, used: false } };
+  const p = c.probabilities[c.choice] ?? 0;
+  const target = (REGISTER_TO_MODE as Record<string, ModeId | undefined>)[c.choice];
+  const used = p >= AUTO_MIN_P && target !== undefined && target !== "default";
+  return { mode: used && target ? MODES[target] : MODES.default, resolution: { register: c.choice, p, used } };
+}
+
+/** Mode-specific questions to ask. Auto asks every mode's, and consumes only the winner's. */
+export function extrasFor(request: ModeRequest): ModeQuestion[] {
+  if (request !== "auto") return MODES[request].extra;
+  return Object.values(MODES).flatMap((m) => m.extra);
 }

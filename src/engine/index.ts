@@ -3,7 +3,7 @@ export { VERSION, MAX_INPUT_CHARS } from "./version";
 export { lex, normalize, countWords, LineIndex, MAX_UNITS, phraseCounts } from "./lexer";
 export { LEXICON, TERMINATORS, TRACKED_WORDS, ACRONYM_ALLOWLIST } from "./lexicon";
 export type { PhraseEntry } from "./lexicon";
-export { MODES, getMode, REGISTERS, REGISTER_TO_MODE } from "./modes";
+export { MODES, getMode, REGISTERS, REGISTER_TO_MODE, resolveMode, extrasFor, AUTO_MIN_P } from "./modes";
 export type { Mode, ModeQuestion, RegisterId, LevelOrOff } from "./modes";
 export { NOULS, CHOICES, SCORES, UNIT_PREFIX, buildQuestions, noulSpecsFor } from "./questions";
 export type { NoulSpec, BuiltQuestions } from "./questions";

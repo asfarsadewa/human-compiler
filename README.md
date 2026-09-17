@@ -44,9 +44,11 @@ Because the model supplies measurements and the code decides what fires, the sam
 
 ### Modes
 
-`--mode default | corporate | manager | linkedin | academic | reddit | politician | teenager`
+`--mode auto | default | corporate | manager | linkedin | academic | reddit | politician | teenager`
 
 A mode is a lint profile: which phrase categories fire, at what level, with which thresholds, plus three mode-specific questions. `teenager` treats corporate phrases as errors. `academic` treats undeclared acronyms as errors. `reddit` expects sarcasm.
+
+`auto` is the default. It asks every mode's questions in the same request (they run in parallel and cost only tokens), then picks the profile from the `dialect` answer and consumes only that profile's answers. The choice is reported as `HC034`, with the probability that drove it. Below 0.50 it falls back to `default`.
 
 ### Flags
 

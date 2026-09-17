@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_FLAGS, bar, compile, flagString, getMode, lex, renderDiagnostic, renderText, summaryLine, windowLine } from "../src/engine";
+import { DEFAULT_FLAGS, bar, compile, flagString, lex, renderDiagnostic, renderText, summaryLine, windowLine } from "../src/engine";
 import { CORPORATE_EMAIL, measurements } from "./fixtures";
 
 const lexed = lex(CORPORATE_EMAIL);
@@ -14,7 +14,7 @@ const report = compile({
     },
     "corporate",
   ),
-  mode: getMode("corporate"),
+  request: "corporate",
   flags: { ...DEFAULT_FLAGS, o2: true },
   model: "jev-1.13.0",
   questionCount: 45,
@@ -107,6 +107,7 @@ describe("summaryLine and flags", () => {
     expect(summaryLine({ ...report, counts: { ...report.counts, errors: 0, warnings: 2 } })).toBe("warning: `input.txt` generated 2 warnings");
     expect(summaryLine({ ...report, counts: { ...report.counts, errors: 0, warnings: 0 } })).toBe("`input.txt` compiled without diagnostics");
     expect(flagString(report)).toBe("--mode corporate -O2");
+    expect(flagString({ ...report, requested: "auto", mode: "linkedin" })).toBe("--mode auto (resolved: linkedin) -O2");
   });
 });
 

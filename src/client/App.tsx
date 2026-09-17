@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DEFAULT_FLAGS, MAX_INPUT_CHARS, MODE_IDS, VERSION, normalize, type Diagnostic, type Flags, type ModeId } from "../engine";
+import { DEFAULT_FLAGS, MAX_INPUT_CHARS, MODE_REQUESTS, VERSION, normalize, type Diagnostic, type Flags, type ModeRequest } from "../engine";
 import { ApiError, compileText, fetchConfig, type CompileResponse, type Config } from "./api";
 import { Editor, type EditorHandle, type Highlight } from "./Editor";
 import { ManPage } from "./ManPage";
@@ -13,7 +13,7 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 interface Persisted {
   text: string;
-  mode: ModeId;
+  mode: ModeRequest;
   flags: Flags;
 }
 
@@ -24,14 +24,14 @@ function load(): Persisted {
       const p = JSON.parse(raw) as Partial<Persisted>;
       return {
         text: typeof p.text === "string" ? p.text : "",
-        mode: (MODE_IDS as readonly string[]).includes(p.mode ?? "") ? (p.mode as ModeId) : "default",
+        mode: (MODE_REQUESTS as readonly string[]).includes(p.mode ?? "") ? (p.mode as ModeRequest) : "auto",
         flags: { ...DEFAULT_FLAGS, ...(p.flags ?? {}) },
       };
     }
   } catch {
     // storage unavailable
   }
-  return { text: "", mode: "default", flags: { ...DEFAULT_FLAGS } };
+  return { text: "", mode: "auto", flags: { ...DEFAULT_FLAGS } };
 }
 
 function save(p: Persisted): void {
@@ -45,7 +45,7 @@ function save(p: Persisted): void {
 export function App() {
   const initial = useMemo(load, []);
   const [text, setText] = useState(initial.text);
-  const [mode, setMode] = useState<ModeId>(initial.mode);
+  const [mode, setMode] = useState<ModeRequest>(initial.mode);
   const [flags, setFlags] = useState<Flags>(initial.flags);
   const [config, setConfig] = useState<Config | null>(null);
   const [configError, setConfigError] = useState<string | null>(null);
@@ -117,7 +117,6 @@ export function App() {
 
   const loadExample = () => {
     setText(SAMPLE);
-    setMode("corporate");
     editorRef.current?.focus();
   };
 
@@ -132,8 +131,8 @@ export function App() {
         <div className="cli" role="group" aria-label="compiler options">
           <label className="opt">
             <span className="flag">--mode</span>
-            <select value={mode} onChange={(e) => setMode(e.target.value as ModeId)} aria-label="mode">
-              {MODE_IDS.map((m) => (
+            <select value={mode} onChange={(e) => setMode(e.target.value as ModeRequest)} aria-label="mode">
+              {MODE_REQUESTS.map((m) => (
                 <option key={m} value={m}>
                   {m}
                 </option>

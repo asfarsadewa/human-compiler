@@ -12,14 +12,15 @@ import {
   sortDiagnostics,
   type CompileInput,
   type Diagnostic,
+  type ModeRequest,
 } from "../src/engine";
 import { CORPORATE_EMAIL, measurements } from "./fixtures";
 
-function input(text: string, over: Parameters<typeof measurements>[0] = {}, mode: Parameters<typeof getMode>[0] = "default", flags = DEFAULT_FLAGS): CompileInput {
+function input(text: string, over: Parameters<typeof measurements>[0] = {}, mode: ModeRequest = "default", flags = DEFAULT_FLAGS): CompileInput {
   return {
     lexed: lex(text),
     measurements: measurements(over, mode),
-    mode: getMode(mode),
+    request: mode,
     flags,
     model: "jev-test",
     questionCount: 40,
@@ -53,10 +54,58 @@ describe("compile", () => {
   });
 
   it("does not depend on question building", () => {
-    const q = buildQuestions(lex(CORPORATE_EMAIL), getMode("corporate"));
+    const q = buildQuestions(lex(CORPORATE_EMAIL), "corporate");
     expect(q.count).toBeGreaterThan(30);
     const r = compile(input(CORPORATE_EMAIL, {}, "corporate"));
     expect(r.questionCount).toBe(40);
+  });
+});
+
+describe("--mode auto", () => {
+  const text = "This is a plain sentence about nothing in particular, written to be unremarkable and long enough to count.";
+
+  it("picks the profile from a confident dialect and reports it", () => {
+    const r = compile(input(text, { choices: { register: { choice: "linkedin", p: 0.7 } }, nouls: { linkedin_energy: 0.85 } }, "auto"));
+    expect(r.mode).toBe("linkedin");
+    expect(r.requested).toBe("auto");
+    expect(r.resolution).toEqual({ register: "linkedin", p: 0.7, used: true });
+    expect(r.diagnostics.find((d) => d.code === "HC034")).toMatchObject({
+      level: "note",
+      message: "--mode auto resolved to linkedin",
+      notes: ["dialect.linkedin = 0.70, threshold 0.50"],
+    });
+    expect(r.diagnostics.find((d) => d.code === "HC032")).toBeUndefined();
+    // The linkedin profile only reports linkedin energy from 0.9, so the default profile did not run.
+    expect(r.diagnostics.find((d) => d.code === "HC006")).toBeUndefined();
+  });
+
+  it("falls back to default without a dominant dialect", () => {
+    const r = compile(input(text, { choices: { register: { choice: "forum", p: 0.4 } } }, "auto"));
+    expect(r.mode).toBe("default");
+    expect(r.resolution).toEqual({ register: "forum", p: 0.4, used: false });
+    expect(r.diagnostics.find((d) => d.code === "HC034")?.message).toBe(
+      "--mode auto found no dominant dialect; compiled with --mode default",
+    );
+    const personal = compile(input(text, { choices: { register: { choice: "personal", p: 0.9 } } }, "auto"));
+    expect(personal.mode).toBe("default");
+    expect(personal.resolution?.used).toBe(false);
+  });
+
+  it("consumes only the winning profile's questions", () => {
+    const r = compile(input(text, { choices: { register: { choice: "political", p: 0.8 } }, nouls: { pivot: 0.9, meta_meeting: 0.9 } }, "auto"));
+    expect(r.mode).toBe("politician");
+    const codes = r.diagnostics.map((d) => d.code);
+    expect(codes).toContain("HC351");
+    expect(codes).not.toContain("HC313");
+  });
+
+  it("leaves literal requests alone", () => {
+    const r = compile(input(text, { choices: { register: { choice: "linkedin", p: 0.9 } } }, "corporate"));
+    expect(r.mode).toBe("corporate");
+    expect(r.requested).toBe("corporate");
+    expect(r.resolution).toBeNull();
+    expect(r.diagnostics.find((d) => d.code === "HC034")).toBeUndefined();
+    expect(r.diagnostics.find((d) => d.code === "HC032")).toBeDefined();
   });
 });
 

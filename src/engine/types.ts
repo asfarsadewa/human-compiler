@@ -15,6 +15,17 @@ export const MODE_IDS = [
 ] as const;
 export type ModeId = (typeof MODE_IDS)[number];
 
+/** What can be requested: a profile, or auto, which picks a profile from the detected dialect. */
+export const MODE_REQUESTS = ["auto", ...MODE_IDS] as const;
+export type ModeRequest = (typeof MODE_REQUESTS)[number];
+
+export interface ModeResolution {
+  register: string;
+  p: number;
+  /** True when the dialect was confident enough to pick a profile. */
+  used: boolean;
+}
+
 export interface Flags {
   /** -Wall: lower every threshold by 0.1 and enable every lexical category. */
   wall: boolean;
@@ -191,7 +202,11 @@ export interface Optimized {
 
 export interface Report {
   version: string;
+  /** The profile the rules ran with. */
   mode: ModeId;
+  /** What was asked for; differs from `mode` only for auto. */
+  requested: ModeRequest;
+  resolution: ModeResolution | null;
   flags: Flags;
   input: {
     lines: number;

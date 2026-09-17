@@ -60,6 +60,13 @@ export function ManPage({ open, onClose, maxChars }: Props) {
 
         <h2>MODES</h2>
         <dl>
+          <div>
+            <dt>--mode auto</dt>
+            <dd>
+              Asks every mode's questions in the same request, then picks the profile from the detected dialect and uses
+              only that profile's answers. The choice is reported as HC034. Falls back to default below 0.50.
+            </dd>
+          </div>
           {Object.values(MODES).map((m) => (
             <div key={m.id}>
               <dt>--mode {m.id}</dt>

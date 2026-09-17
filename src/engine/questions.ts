@@ -3,8 +3,8 @@
 
 import type { Questions } from "@typesafe-ai/sdk";
 import type { Mode } from "./modes";
-import { REGISTERS } from "./modes";
-import type { Lexed } from "./types";
+import { REGISTERS, extrasFor } from "./modes";
+import type { Lexed, ModeRequest } from "./types";
 
 export interface NoulSpec {
   id: string;
@@ -279,13 +279,13 @@ export interface BuiltQuestions {
   count: number;
 }
 
-export function buildQuestions(lexed: Lexed, mode: Mode): BuiltQuestions {
+export function buildQuestions(lexed: Lexed, request: ModeRequest): BuiltQuestions {
   const questions: Questions = {};
 
   for (const n of NOULS) {
     questions[n.id] = { type: "noul", instructions: n.instructions, criteria: n.criteria ?? null };
   }
-  for (const x of mode.extra) {
+  for (const x of extrasFor(request)) {
     questions[x.id] = { type: "noul", instructions: x.instructions };
   }
   for (const [id, c] of Object.entries(CHOICES)) {

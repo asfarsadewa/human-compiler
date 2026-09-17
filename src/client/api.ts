@@ -1,4 +1,4 @@
-import type { Flags, ModeId, Report } from "../engine";
+import type { Flags, ModeRequest, Report } from "../engine";
 
 export interface Config {
   siteKey: string;
@@ -36,7 +36,7 @@ export async function fetchConfig(): Promise<Config> {
   return parse<Config>(await fetch("/api/config", { headers: { Accept: "application/json" } }));
 }
 
-export async function compileText(body: { text: string; mode: ModeId; flags: Flags; token: string }): Promise<CompileResponse> {
+export async function compileText(body: { text: string; mode: ModeRequest; flags: Flags; token: string }): Promise<CompileResponse> {
   return parse<CompileResponse>(
     await fetch("/api/compile", {
       method: "POST",

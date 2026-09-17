@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "human-compiler",
+  "main": "./src/worker/index.ts",
+  "compatibility_date": "2026-09-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  },
+  "routes": [{ "pattern": "human-compiler.asfarlab.fun", "custom_domain": true }],
+  "vars": {
+    // Turnstile site keys are public. This is Cloudflare's always-pass test key
+    // until a real widget is created for the domain.
+    "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
+    // Comma-separated hostnames that siteverify must report. Never localhost in production.
+    "TURNSTILE_HOSTNAMES": "human-compiler.asfarlab.fun"
+  },
+  "ratelimits": [
+    {
+      "name": "COMPILE_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 20, "period": 60 }
+    }
+  ],
+  "upload_source_maps": true
+}

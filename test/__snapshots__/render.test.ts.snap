@@ -1,0 +1,221 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderText > matches the stored snapshot 1`] = `
+"   Compiling input.txt (--mode corporate -O2)
+      Lexing   0.4ms  4 paragraphs, 7 sentences, 62 words
+   Analyzing   812ms  jev-1.13.0, 45 questions, 1203 tokens
+
+PASSIVE_AGGRESSION      ████████░░  0.82
+CORPORATE_BULLSHIT      █████████░  0.94
+ACTUAL_INFORMATION      ██░░░░░░░░  0.21
+UNNECESSARY_URGENCY     ███████░░░  0.72
+MEETING_COULD_BE_EMAIL  █████████░  0.89
+LINKEDIN_ENERGY         █░░░░░░░░░  0.10
+SOUNDS_AI_GENERATED     █░░░░░░░░░  0.10
+
+information_density     0.6 / 3  mostly filler with one or two concrete points
+length_excess           2.1 / 3  about half could be removed
+clarity                 0.2 / 2  clear on one reading
+hostility               0.1 / 2  neutral or warm
+
+intent
+  cover_own_ass           0.52
+  inform                  0.08
+  persuade                0.08
+  request                 0.08
+  self_promote            0.08
+  unknown                 0.08
+  vent                    0.08
+
+dialect
+  personal                0.90
+  academic                0.01
+  corporate               0.01
+  forum                   0.01
+  linkedin                0.01
+  marketing               0.01
+  political               0.01
+  teen                    0.01
+
+subtext
+  none                    0.90
+  anger                   0.02
+  anxiety                 0.02
+  boredom                 0.02
+  contempt                0.02
+  desperation             0.02
+  insecurity              0.02
+
+error[HC003]: NullMeaningException: no recoverable information in 62 words
+  = note: actual_information = 0.21, threshold 0.25
+
+warning[HC001]: passive aggression detected
+  = note: passive_aggression = 0.82, threshold 0.70
+
+warning[HC002]: corporate language exceeds tolerance
+  = note: corporate_bullshit = 0.94, threshold 0.70
+
+warning[HC004]: urgency not justified by content
+  = note: unnecessary_urgency = 0.72, threshold 0.70
+
+warning[HC005]: meeting could be an email
+  = note: meeting_could_be_email = 0.89, threshold 0.65
+
+warning[HC027]: information density 0.6 of 3: mostly filler with one or two concrete points
+  = note: information_density = 0.6, threshold 0.75
+
+warning[HC028]: 9% of input could be removed
+  = note: length_excess = 2.1 of 3, threshold 1.5
+
+warning[HC031]: primary intent resolved to cover_own_ass
+  = note: intent.cover_own_ass = 0.52, threshold 0.45
+
+note[HC032]: input dialect resolved to personal; compiled with --mode corporate
+  = note: dialect.personal = 0.90
+
+warning[HC117]: paragraph 1 adds no new information
+  --> input.txt:1:1
+  |
+1 | Hi team,
+  | ^^^^^^^^ dead
+  |
+  = note: unit_0 = 0.10, threshold 0.40
+
+warning[HC202]: "Per my last email" detected
+  --> input.txt:3:1
+  |
+3 | Per my last email, I wanted to circle back on the Q3 alignment. Going forward we need to leverage our synergies and make sure everyone has the bandwidth to move the needle.
+  | ^^^^^^^^^^^^^^^^^ consider: "as I wrote earlier"
+  |
+  = note: category: passive_aggressive
+
+warning[HC201]: "circle back" detected
+  --> input.txt:3:32
+  |
+3 | Per my last email, I wanted to circle back on the Q3 alignment. Going forward we need to leverage our synergies and make sure everyone has the bandwidth to move the needle.
+  |                                ^^^^^^^^^^^ consider: "follow up"
+  |
+  = note: category: corporate
+
+warning[HC201]: "alignment" detected
+  --> input.txt:3:54
+  |
+3 | Per my last email, I wanted to circle back on the Q3 alignment. Going forward we need to leverage our synergies and make sure everyone has the bandwidth to move the needle.
+  |                                                      ^^^^^^^^^ consider: "agreement"
+  |
+  = note: category: corporate
+
+warning[HC201]: "Going forward" detected
+  --> input.txt:3:65
+  |
+3 | Per my last email, I wanted to circle back on the Q3 alignment. Going forward we need to leverage our synergies and make sure everyone has the bandwidth to move the needle.
+  |                                                                 ^^^^^^^^^^^^^ consider: "from now on"
+  |
+  = note: category: corporate
+
+warning[HC201]: "leverage" detected
+  --> input.txt:3:90
+  |
+3 | Per my last email, I wanted to circle back on the Q3 alignment. Going forward we need to leverage our synergies and make sure everyone has the bandwidth to move the needle.
+  |                                                                                          ^^^^^^^^ consider: "use"
+  |
+  = note: category: corporate
+
+warning[HC201]: "synergies" detected
+  --> input.txt:3:103
+  |
+3 | Per my last email, I wanted to circle back on the Q3 alignment. Going forward we need to leverage our synergies and make sure everyone has the bandwidth to move the needle.
+  |                                                                                                       ^^^^^^^^^ consider: "cooperation"
+  |
+  = note: category: corporate
+
+warning[HC201]: "bandwidth" detected
+  --> input.txt:3:144
+  |
+3 | Per my last email, I wanted to circle back on the Q3 alignment. Going forward we need to leverage our synergies and make sure everyone has the bandwidth to move the needle.
+  |                                                                                                                                                ^^^^^^^^^ consider: "time"
+  |
+  = note: category: corporate
+
+warning[HC201]: "move the needle" detected
+  --> input.txt:3:157
+  |
+3 | Per my last email, I wanted to circle back on the Q3 alignment. Going forward we need to leverage our synergies and make sure everyone has the bandwidth to move the needle.
+  |                                                                                                                                                             ^^^^^^^^^^^^^^^ consider: "make a difference"
+  |
+  = note: category: corporate
+
+warning[HC201]: "touch base" detected
+  --> input.txt:5:22
+  |
+5 | Let's find a time to touch base ASAP so we can double-click on the deliverables and get alignment on next steps. This is critical.
+  |                      ^^^^^^^^^^ consider: "talk"
+  |
+  = note: category: corporate
+
+warning[HC203]: "ASAP" detected
+  --> input.txt:5:33
+  |
+5 | Let's find a time to touch base ASAP so we can double-click on the deliverables and get alignment on next steps. This is critical.
+  |                                 ^^^^ consider: "by <date>"
+  |
+  = note: category: urgency
+
+warning[HC201]: "double-click on" detected
+  --> input.txt:5:48
+  |
+5 | Let's find a time to touch base ASAP so we can double-click on the deliverables and get alignment on next steps. This is critical.
+  |                                                ^^^^^^^^^^^^^^^ consider: "look at"
+  |
+  = note: category: corporate
+
+warning[HC201]: "deliverables" detected
+  --> input.txt:5:68
+  |
+5 | Let's find a time to touch base ASAP so we can double-click on the deliverables and get alignment on next steps. This is critical.
+  |                                                                    ^^^^^^^^^^^^ consider: "results"
+  |
+  = note: category: corporate
+
+warning[HC201]: "alignment" detected
+  --> input.txt:5:89
+  |
+5 | Let's find a time to touch base ASAP so we can double-click on the deliverables and get alignment on next steps. This is critical.
+  |                                                                                         ^^^^^^^^^ consider: "agreement"
+  |
+  = note: category: corporate
+
+warning[HC203]: "critical" detected
+  --> input.txt:5:122
+  |
+5 | Let's find a time to touch base ASAP so we can double-click on the deliverables and get alignment on next steps. This is critical.
+  |                                                                                                                          ^^^^^^^^ consider: "important"
+  |
+  = note: category: urgency
+
+warning[HC117]: paragraph 4 adds no new information
+  --> input.txt:7:1
+  |
+7 | Thanks in advance,
+  | ^^^^^^^^^^^^^^^^^^ dead
+  |
+  = note: unit_3 = 0.05, threshold 0.40
+
+warning[HC202]: "Thanks in advance" detected
+  --> input.txt:7:1
+  |
+7 | Thanks in advance,
+  | ^^^^^^^^^^^^^^^^^ consider: "thank you"
+  |
+  = note: category: passive_aggressive
+
+-O2: removed 2 dead paragraphs, 339 -> 304 chars (-10%)
+
+Per my last email, I wanted to circle back on the Q3 alignment. Going forward we need to leverage our synergies and make sure everyone has the bandwidth to move the needle.
+
+Let's find a time to touch base ASAP so we can double-click on the deliverables and get alignment on next steps. This is critical.
+
+severity: 9.0 / 10
+error: could not compile \`input.txt\` due to 1 previous error; 24 warnings emitted
+exit code: 1"
+`;

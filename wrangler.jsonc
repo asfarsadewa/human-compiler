@@ -15,9 +15,8 @@
   },
   "routes": [{ "pattern": "human-compiler.asfarlab.fun", "custom_domain": true }],
   "vars": {
-    // Turnstile site keys are public. This is Cloudflare's always-pass test key
-    // until a real widget is created for the domain.
-    "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
+    // Turnstile site keys are public. The secret lives in the TURNSTILE_SECRET secret.
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAE6TCadxC2rZHeY3",
     // Comma-separated hostnames that siteverify must report. Never localhost in production.
     "TURNSTILE_HOSTNAMES": "human-compiler.asfarlab.fun"
   },

@@ -67,34 +67,21 @@ function Diag({ d, lines, columns, onJump }: { d: Diagnostic; lines: string[]; c
             {block.labelLine ? `\n${block.labelLine}` : ""}
           </span>
           {d.notes.length || d.help.length ? `\n${block.gutter}` : ""}
+        </pre>
+      ) : null}
+      {(d.notes.length > 0 || d.help.length > 0) && (
+        <pre className="diag-notes">
           {d.notes.map((n, i) => (
-            <span key={`n${i}`}>
-              {"\n"}
+            <span className="diag-note" key={`n${i}`}>
               {pad} = <b>note</b>: {n}
             </span>
           ))}
           {d.help.map((h, i) => (
-            <span key={`h${i}`}>
-              {"\n"}
+            <span className="diag-note" key={`h${i}`}>
               {pad} = <b>help</b>: {h}
             </span>
           ))}
         </pre>
-      ) : (
-        (d.notes.length > 0 || d.help.length > 0) && (
-          <pre className="diag-span">
-            {d.notes.map((n, i) => (
-              <span key={`n${i}`}>
-                {i > 0 ? "\n" : ""}  = <b>note</b>: {n}
-              </span>
-            ))}
-            {d.help.map((h, i) => (
-              <span key={`h${i}`}>
-                {d.notes.length > 0 || i > 0 ? "\n" : ""}  = <b>help</b>: {h}
-              </span>
-            ))}
-          </pre>
-        )
       )}
     </article>
   );

@@ -26,18 +26,31 @@ export function flagString(report: Report): string {
   return parts.join(" ");
 }
 
+export interface Windowed {
+  text: string;
+  /** 1-based column of the span inside `text`. */
+  col: number;
+  /** How many characters of the span are visible inside the window. */
+  visible: number;
+}
+
 /** Trims a long source line to a window around the span, keeping the column valid. */
-export function windowLine(src: string, col: number, length: number, maxWidth: number): { text: string; col: number } {
-  if (maxWidth <= 0 || src.length <= maxWidth) return { text: src, col };
+export function windowLine(src: string, col: number, length: number, maxWidth: number): Windowed {
+  const spanStart = Math.max(0, col - 1);
+  if (maxWidth <= 0 || src.length <= maxWidth) {
+    return { text: src, col, visible: Math.max(0, Math.min(length, src.length - spanStart)) };
+  }
   const ell = "...";
-  const inner = Math.max(length + 8, maxWidth - 2 * ell.length);
-  let start = Math.max(0, col - 1 - Math.floor((inner - length) / 2));
+  const inner = Math.max(8, maxWidth - 2 * ell.length);
+  const wanted = Math.min(length, inner);
+  let start = Math.max(0, spanStart - Math.floor((inner - wanted) / 2));
   let end = Math.min(src.length, start + inner);
   start = Math.max(0, end - inner);
   end = Math.min(src.length, start + inner);
   const prefix = start > 0 ? ell : "";
   const suffix = end < src.length ? ell : "";
-  return { text: prefix + src.slice(start, end) + suffix, col: col - start + prefix.length };
+  const visible = Math.max(0, Math.min(spanStart + length, end) - Math.max(spanStart, start));
+  return { text: prefix + src.slice(start, end) + suffix, col: col - start + prefix.length, visible };
 }
 
 export interface SpanBlock {
@@ -55,9 +68,9 @@ export function spanBlock(d: Diagnostic, lines: readonly string[], filename = FI
   const width = String(d.span.line).length;
   const pad = " ".repeat(width);
   const raw = lines[d.span.line - 1] ?? "";
-  const { text, col } = windowLine(raw, d.span.col, d.span.length, maxWidth);
+  const { text, col, visible } = windowLine(raw, d.span.col, d.span.length, maxWidth);
   const indent = " ".repeat(Math.max(0, col - 1));
-  const run = indent + "^".repeat(Math.max(1, Math.min(d.span.length, text.length - col + 1)));
+  const run = indent + "^".repeat(Math.max(1, visible));
   const block: SpanBlock = {
     arrow: `${pad} --> ${filename}:${d.span.line}:${d.span.col}`,
     gutter: `${pad} |`,

@@ -638,7 +638,19 @@ td.num {
   padding-bottom: 2px;
 }
 
-.diag-span b {
+.diag-notes {
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+
+.diag-note {
+  display: block;
+  padding-left: 10ch;
+  text-indent: -10ch;
+}
+
+.diag-span b,
+.diag-notes b {
   font-weight: 600;
   color: var(--ink-2);
 }

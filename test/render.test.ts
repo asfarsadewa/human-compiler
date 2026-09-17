@@ -56,7 +56,7 @@ describe("renderDiagnostic", () => {
 
 describe("windowLine", () => {
   it("leaves short lines alone", () => {
-    expect(windowLine("short line", 3, 2, 40)).toEqual({ text: "short line", col: 3 });
+    expect(windowLine("short line", 3, 2, 40)).toEqual({ text: "short line", col: 3, visible: 2 });
   });
 
   it("trims long lines around the span and keeps the column pointing at it", () => {
@@ -69,6 +69,17 @@ describe("windowLine", () => {
     const head = windowLine(src, 1, 3, 30);
     expect(head.text.startsWith("xxx")).toBe(true);
     expect(head.col).toBe(1);
+  });
+
+  it("keeps the window fixed when the span is longer than it", () => {
+    const src = "a".repeat(20) + "b".repeat(60) + "c".repeat(20);
+    const w = windowLine(src, 21, 60, 30);
+    expect(w.text).toBe("..." + "b".repeat(24) + "...");
+    expect(w).toMatchObject({ col: 4, visible: 24 });
+    const whole = { code: "HC117", level: "warning" as const, message: "paragraph 2 adds no new information", span: { line: 3, col: 1, length: lexed.lines[2].length }, label: "dead", notes: [], help: [] };
+    const lines = renderDiagnostic(whole, lexed.lines, "input.txt", 40).split("\n");
+    expect(lines[3]).toBe(`3 | ${lexed.lines[2].slice(0, 34)}...`);
+    expect(lines[4]).toBe(`  | ${"^".repeat(34)} dead`);
   });
 
   it("moves a label to its own line when it would not fit", () => {

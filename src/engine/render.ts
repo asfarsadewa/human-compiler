@@ -10,6 +10,7 @@ export function bar(value: number, width = 10): string {
 }
 
 function ms(n: number): string {
+  if (n < 0.05) return "<0.1ms";
   return n >= 100 ? `${Math.round(n)}ms` : `${n.toFixed(1)}ms`;
 }
 

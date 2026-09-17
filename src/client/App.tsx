@@ -206,8 +206,20 @@ export function App() {
         <span>
           measurements by <a href="https://typesafe.ai" rel="noreferrer">TypeSafe Jev</a>
         </span>
-        <span>
-          <a href="https://github.com/asfarsadewa/human-compiler" rel="noreferrer">source</a> · MIT
+        <span className="bottom-links">
+          <a href="https://github.com/asfarsadewa/human-compiler" rel="noreferrer">source</a>
+          <span aria-hidden="true">·</span>
+          <span>MIT</span>
+          <span aria-hidden="true">·</span>
+          <a className="x-link" href="https://x.com/ashthepeasant" rel="noreferrer" aria-label="ashthepeasant on X" title="@ashthepeasant">
+            <svg className="x-mark" viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"
+              />
+            </svg>
+            <span>ashthepeasant</span>
+          </a>
         </span>
       </footer>
 

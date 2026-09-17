@@ -684,10 +684,40 @@ td.num {
 .bottom {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 16px;
   padding: 10px 0 14px;
   color: var(--ink-3);
   font-size: 12px;
+}
+
+.bottom-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.x-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  color: var(--ink-2);
+}
+
+.x-link:hover {
+  color: var(--ink);
+}
+
+.x-link span {
+  text-decoration: underline;
+  text-decoration-color: var(--ink-3);
+  text-underline-offset: 3px;
+}
+
+.x-mark {
+  display: block;
+  flex: none;
 }
 
 /* man page */

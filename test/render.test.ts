@@ -99,6 +99,11 @@ describe("renderText", () => {
     expect(lines[2]).toBe("   Analyzing   812ms  jev-1.13.0, 45 questions, 1203 tokens");
   });
 
+  it("prints sub-tenth timings as a floor", () => {
+    const fast = renderText({ ...report, timings: { ...report.timings, lex_ms: 0 } }, lexed.lines).split("\n")[1];
+    expect(fast).toBe("      Lexing  <0.1ms  4 paragraphs, 7 sentences, 62 words");
+  });
+
   it("prints measurement bars, scores and distributions", () => {
     expect(text).toContain("CORPORATE_BULLSHIT      █████████░  0.94");
     expect(text).toContain("ACTUAL_INFORMATION      ██░░░░░░░░  0.21");

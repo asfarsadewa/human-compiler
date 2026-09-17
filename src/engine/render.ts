@@ -19,7 +19,7 @@ function plural(n: number, word: string): string {
 }
 
 export function flagString(report: Report): string {
-  const parts = [report.requested === "auto" ? `--mode auto (resolved: ${report.mode})` : `--mode ${report.mode}`];
+  const parts = [report.requested === "auto" ? `--mode auto=${report.mode}` : `--mode ${report.mode}`];
   if (report.flags.wall) parts.push("-Wall");
   if (report.flags.werror) parts.push("-Werror");
   if (report.flags.o2) parts.push("-O2");

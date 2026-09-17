@@ -107,7 +107,7 @@ describe("summaryLine and flags", () => {
     expect(summaryLine({ ...report, counts: { ...report.counts, errors: 0, warnings: 2 } })).toBe("warning: `input.txt` generated 2 warnings");
     expect(summaryLine({ ...report, counts: { ...report.counts, errors: 0, warnings: 0 } })).toBe("`input.txt` compiled without diagnostics");
     expect(flagString(report)).toBe("--mode corporate -O2");
-    expect(flagString({ ...report, requested: "auto", mode: "linkedin" })).toBe("--mode auto (resolved: linkedin) -O2");
+    expect(flagString({ ...report, requested: "auto", mode: "linkedin" })).toBe("--mode auto=linkedin -O2");
   });
 });
 
